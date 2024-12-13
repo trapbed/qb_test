@@ -1,7 +1,15 @@
 @extends('layout.header')
+
+
+@if(isset($errors) && $errors->any())
+    <script>alert('{{$errors->first()}}')</script>
+    <?php
+        unset($errors);
+    ?>
+@endif
 <?php
-    // dd(count($row));
-    // echo(gettype(json_decode($json_for_controller)));
+        print_r($type[0]);
+    
 ?>
 @section('title', 'Добавление в {{$aspect}}')
 @section('content')
@@ -13,19 +21,29 @@
     @for ($i = 0 ; $i<count($row); $i++)
         
             @if(is_string($type[$i]))
-            <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">{{$labels[$i]}}</label>
-                <input required type="{{$type[$i]}}" name="{{$row[$i]}}" class="form-control" id="exampleInputPassword1">
-            </div>
-            
+                @if($type[$i] != 'checkbox')
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">{{$labels[$i]}}</label>
+                        <input required type="{{$type[$i]}}" name="{{$row[$i]}}" class="form-control" id="exampleInputPassword1">
+                    </div>  
+                @else
+                    <div class="mb-3">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked type="{{$type[$i]}}" name="{{$row[$i]}}">
+                        <label for="exampleInputPassword1" class="form-label">{{$labels[$i]}}</label>
+                    </div>  
+                @endif            
             @elseif(!is_string($type[$i]))
             <div class="mb-3">
-            
+                
                 <label for="exampleInputPassword1" class="form-label">{{$labels[$i]}}</label>
                 <select required class="form-select" name="{{$row[$i]}}" aria-label="Default select example">
                     <option selected>{{$labels[$i]}}</option>
                     @foreach ($type[$i] as $option)
-                        <option value="{{$option}}">{{$option}}</option>
+                        @if(isset($option->id))
+                            <option value="{{$option->id}}">{{$option->name}}</option> 
+                        @else
+                            <option value="{{$option}}">{{$option}}</option> 
+                        @endif
                     @endforeach
                 </select>
             </div>

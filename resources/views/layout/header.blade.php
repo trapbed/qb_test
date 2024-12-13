@@ -16,6 +16,10 @@
             width: 100%;
             height: 1.5vmax;
         }
+        .alert{
+            position: relative;
+            z-index: 1;
+        }
         #see_form_1{
             cursor: pointer;
         }
@@ -25,7 +29,9 @@
             align-items: center;
             justify-content: center;
             position: absolute;
-            z-index: 2;
+            top: 0;
+            
+            z-index: 3;
             width: 100vmax;
             height: 45.55vmax;
             background-color: rgba(170, 170, 170, 0.4);
@@ -40,12 +46,32 @@
             flex-direction: column;
             justify-content: flex-start;
         }
-        
+        input[type=checkbox]{
+            width: 4vmax;
+            height: 4vmax;
+        }
     </style>
 </head>
 <body>
-<div id="background_modal"></div>
+@if(session('mess'))
+    <div class="alert alert-success">
+        {{ session('mess') }}
+    </div>
+@endif
 
+@if(session('error'))
+    <div class="alert alert-danger" role="alert">
+        {{ session('error') }}
+    </div>
+@endif
+
+<div id="background_modal"></div>
+    @if(isset($mess))
+        <script>alert('{{$mess}}');</script>
+        <?php
+            unset($mess);
+        ?>
+    @endif
     <div class="container">
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
