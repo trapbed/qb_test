@@ -69,7 +69,7 @@ class PageController extends Controller
     }
     public function discount_product(){
         $all_products = DB::table('products')->select('name', 'current_price', 'weight', 'compound', 'discount', 'new', 'hit')->where('discount', '>', '20')->get();
-        return view('task3', ['all_products'=>$all_products]);
+        return view('task2', ['all_products'=>$all_products]);
     }
     
     public function new_product(){
@@ -82,6 +82,7 @@ class PageController extends Controller
         return view('task2', ['all_products'=>$all_products]);
     }
     public function min_weight(){
+        $category_id = DB::table('categories')->select('id')->where('name', '=', 'Овощи')->get()[0]->id;
         $all_products = DB::table('products')->select('name', 'current_price', 'weight', 'compound', 'discount', 'new', 'hit')->where('weight', '<', '200')->get();
         return view('task2', ['all_products'=>$all_products]);
     }
@@ -95,8 +96,13 @@ class PageController extends Controller
         return view('task3', ['categories'=>$categories]);
     }
     public function change_data_type(){
-        $change = DB::table('users')->where('role', '=', 'user')->update(['role'=> 'client']);    
-        return back()->with(['mess'=>'Тип данных изменен (состав)']);
+        $change = DB::table('users')->where('role', '=', 'user')->update(['role'=> 'client']);  
+        if($change){
+            return back()->with(['mess'=>'Роль изменена!']);
+        }  
+        else{
+            return back()->with(['error'=>'Не удалось изменить роль!']);
+        }
     }
     public function courier_ivan(){
         $courier_ivan = DB::table('couriers')->select('name', 'phone', 'status')->where('name', 'LIKE', '%иван')->get();
@@ -110,4 +116,156 @@ class PageController extends Controller
         $couriers = DB::table('couriers')->where('status', '=', 'Занят')->update(['status'=> 'Свободен']);
         return back()->with('mess', 'Статус курьеров изменен!');
     }
+    public function weight(){
+        $weight = DB::table('products')->select('products.*')->where('weight', '=', 800)->where('date_remove', '=', NULL)->get();
+        return view('task2', ['all_products'=>$weight]);
+    }
+    public function prod_cat_count(){
+        $prod_cat_count = DB::table('categories')->select("categories.*", DB::raw("count(products.id) as how_much"))->join('products', 'categories.id', '=', 'products.category_id', 'left outer')->groupBy('categories.id')->get();
+        return view('task6', ['prod_cat_count'=>$prod_cat_count]);
+    }
+    public function popular_prods(){
+        $popular_prods = DB::table('products')->select("products.*", DB::raw("count(order_products.id) as how_much"))->join('order_products', 'products.id', '=', 'order_products.product_id', 'left outer')->groupBy('products.id')->orderBy( DB::raw("count(order_products.id)"), 'DESC')->get(); ;
+        return view('task7', ['popular_prods'=>$popular_prods]);
+    }
+    public function more_one(){
+        $more_one = DB::table('products')->select("products.*", DB::raw("count(order_products.id) as how_much"))->join('order_products', 'products.id', '=', 'order_products.product_id', 'left outer')->groupBy('products.id')->having(DB::raw("count(order_products.id)"), '>', 1)->get();
+        return view('task7', ['popular_prods'=>$more_one]);
+    }
+    public function general_price(){
+        $general_price_cat = DB::table('categories')->select("categories.*", DB::raw("sum(products.current_price) as how_much"))->join('products', 'categories.id', '=', 'products.category_id', 'left outer')->groupBy('categories.id')->get();
+        return view('task8', ['general_price_cat'=>$general_price_cat]);
+    }
+    public function expensive_limit(){
+        $expensive_5 = DB::table('products')->select('products.*')->orderBy('products.current_price', 'DESC')->limit(5)->get(); 
+        return view('task9', ['prods'=>$expensive_5]);
+    }
+    public function no_order(){
+        $no_order = DB::table('products')->select('products.*', DB::raw('count(order_products.product_id)'))->join('order_products', 'products.id', '=', 'order_products.product_id', 'left outer')->groupBy('products.id')->having(DB::raw('count(order_products.product_id)'), '=', 0)->get(); 
+        return view('task9', ['prods'=>$no_order]);
+    }
+    public function order_month(){
+        $orders =  DB::table('orders')->select(DB::raw("(count(CASE 
+            WHEN created_at <= '2024-12-31' AND created_at >= '2024-12-01' THEN 1 
+            ELSE NULL 
+            END)) as december"), DB::raw("
+            (count(CASE 
+            WHEN created_at <= '2024-11-30' AND created_at >= '2024-11-01' THEN 1 
+            ELSE NULL 
+            END)) as november, 
+            (count(CASE 
+            WHEN created_at <= '2024-10-31' AND created_at >= '2024-10-01' THEN 1 
+            ELSE NULL 
+            END)) as 'october',  
+            (count(CASE 
+            WHEN created_at <= '2024-09-30' AND created_at >= '2024-09-01' THEN 1 
+            ELSE NULL 
+            END)) as 'september',  
+            (count(CASE 
+            WHEN created_at <= '2024-08-31' AND created_at >= '2024-08-01' THEN 1 
+            ELSE NULL 
+            END)) as 'august',  
+            (count(CASE 
+            WHEN created_at <= '2024-07-31' AND created_at >= '2024-07-01' THEN 1 
+            ELSE NULL 
+            END)) as 'july',  
+            (count(CASE 
+            WHEN created_at <= '2024-06-30' AND created_at >= '2024-06-01' THEN 1 
+            ELSE NULL 
+            END)) as 'june',  
+            (count(CASE 
+            WHEN created_at <= '2024-05-31' AND created_at >= '2024-05-01' THEN 1 
+            ELSE NULL 
+            END)) as 'may',  
+            (count(CASE 
+            WHEN created_at <= '2024-05-31' AND created_at >= '2024-04-01' THEN 1 
+            ELSE NULL 
+            END)) as 'april',  
+            (count(CASE 
+            WHEN created_at <= '2024-03-31' AND created_at >= '2024-03-01' THEN 1 
+            ELSE NULL 
+            END)) as 'march',  
+            (count(CASE 
+            WHEN created_at <= '2024-02-29' AND created_at >= '2024-02-01' THEN 1 
+            ELSE NULL 
+            END)) as 'february',  
+            (count(CASE 
+            WHEN created_at <= '2024-01-31' AND created_at >= '2024-01-01' THEN 1 
+            ELSE NULL 
+            END)) as 'january'"))->get(); 
+        return view('task10', ['q'=>$orders]);
+    }
+    public function avg_sum(){
+        $avg_sum = DB::table('orders')->select(DB::raw('avg(orders.sum) as how_much'))->where('created_at', '<=', '2024-12-31')->where('created_at', '>=', '2024-10-01')->get(); 
+        return view('task11', ['avg_sum'=>$avg_sum]);
+    }
+    public function avg_cat(){
+        $avg_cat = DB::table('products')->select('categories.*', DB::raw('avg(products.current_price) as how_much'))->join('categories', 'products.category_id', '=', 'categories.id', 'left outer')->groupBy('categories.id')->get();
+        return view('task12', ['avg_cat'=> $avg_cat]);
+    }
+    public function expensive(){
+        $expensive = DB::table('products')->select('products.*')->orderBy('products.current_price', 'DESC')->get(); 
+        return view('task13', ['expensive'=>$expensive]);
+    }
+    public function order_courier(){
+        $order_courier = DB::table('orders')->select("couriers.name as c_name", DB::raw('count(orders.id) as how_much'))->join('couriers', 'couriers.id', '=', 'orders.courier_id', 'left outer')->where('courier_id', '=', 1)->where('orders.created_at', '<=', '2024-12-31')->where('orders.created_at', '>=', '2024-12-01')->groupBy('couriers.id')->get();
+        return view('task14', ['order_courier'=>$order_courier]);
+    }
+    // Route::get('/q24', function(){
+    //     $query24 = DB::table('orders')->select("couriers.name as c_name", DB::raw('count(orders.id) as how_much'))->join('couriers', 'couriers.id', '=', 'orders.courier_id', 'left outer')->where('courier_id', '=', 1)->where('orders.created_at', '<=', '2024-12-31')->where('orders.created_at', '>=', '2024-12-01')->groupBy('couriers.id')->get();
+    //     return view('q24', ['q' => $query24]);})->name('q24');
+
+
+
+    // $query18 = DB::table('products')->select('products.*')->orderBy('products.current_price', 'DESC')->limit(5);
+    // $query19 = DB::table('products')->select('products.*', 'count(order_products.product_id)')->join('order_products', 'products.id', '=', 'order_products.product_id')->groupBy('product.id')->having('count(order_products.product_id)', '=', 0);
+    // $query20 = DB::table('orders')->select((count(CASE
+    // WHEN created_at <= '2024-12-31' AND created_at >= '2024-12-01' THEN 1
+    // ELSE NULL
+    // END)) as 'december', 
+    // (count(CASE
+    // WHEN created_at <= '2024-11-30' AND created_at >= '2024-11-01' THEN 1
+    // ELSE NULL
+    // END)) as 'november',
+    // (count(CASE
+    // WHEN created_at <= '2024-10-31' AND created_at >= '2024-10-01' THEN 1
+    // ELSE NULL
+    // END)) as 'october', 
+    // (count(CASE
+    // WHEN created_at <= '2024-09-30' AND created_at >= '2024-09-01' THEN 1
+    // ELSE NULL
+    // END)) as 'september', 
+    // (count(CASE
+    // WHEN created_at <= '2024-08-31' AND created_at >= '2024-08-01' THEN 1
+    // ELSE NULL
+    // END)) as 'august', 
+    // (count(CASE
+    // WHEN created_at <= '2024-07-31' AND created_at >= '2024-07-01' THEN 1
+    // ELSE NULL
+    // END)) as 'july', 
+    // (count(CASE
+    // WHEN created_at <= '2024-06-30' AND created_at >= '2024-06-01' THEN 1
+    // ELSE NULL
+    // END)) as 'june', 
+    // (count(CASE
+    // WHEN created_at <= '2024-05-31' AND created_at >= '2024-05-01' THEN 1
+    // ELSE NULL
+    // END)) as 'may', 
+    // (count(CASE
+    // WHEN created_at <= '2024-05-31' AND created_at >= '2024-04-01' THEN 1
+    // ELSE NULL
+    // END)) as 'april', 
+    // (count(CASE
+    // WHEN created_at <= '2024-03-31' AND created_at >= '2024-03-01' THEN 1
+    // ELSE NULL
+    // END)) as 'march', 
+    // (count(CASE
+    // WHEN created_at <= '2024-02-29' AND created_at >= '2024-02-01' THEN 1
+    // ELSE NULL
+    // END)) as 'february', 
+    // (count(CASE
+    // WHEN created_at <= '2024-01-31' AND created_at >= '2024-01-01' THEN 1
+    // ELSE NULL
+    // END)) as 'january')->get();
+    // $query21 =  DB::table('orders')->select('avg()')->get();
 }

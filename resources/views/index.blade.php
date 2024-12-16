@@ -15,7 +15,19 @@
       <li class="list-group-item"><a href="{{route('courier_ivan')}}">Вывести всех курьеров с именем «Иван».</a></li>
       <li class="list-group-item"><a href="{{route('courier_free')}}">Вывести список всех свободных курьеров.</a></li>
       <li class="list-group-item"><a href="{{route('courier_status_change')}}">Изменить статус всех занятых курьеров на «свободен».</a></li>
-      
+    <li class="list-group-item"><a href="{{route('weight')}}">Получить информацию о товарах, которые есть в наличии в определённом весе.</a></li>
+    <li class="list-group-item"><a href="{{route('prod_cat_count')}}">Узнать количество товаров каждой категории.</a></li>
+    <li class="list-group-item"><a href="{{route('popular_prods')}}">Определить самые популярные товары.</a></li>
+    <li class="list-group-item"><a href="{{route('more_one')}}">Показать товары, которые были заказаны более одного раза.</a></li>
+    <li class="list-group-item"><a href="{{route('general_price')}}">Подсчитать общую стоимость товаров в каждой категории.</a></li>
+    <li class="list-group-item"><a href="{{route('expensive_limit')}}">Отобразить 5 товаров с самой высокой ценой.</a></li>
+    <li class="list-group-item"><a href="{{route('no_order')}}">Получить список товаров, которые не были заказаны.</a></li>
+    <li class="list-group-item"><a href="{{route('order_month')}}">Посчитать количество заказов за каждый месяц.</a></li>
+    <li class="list-group-item"><a href="{{route('avg_sum')}}">Найти среднюю сумму заказа за последние 3 месяца.</a></li>
+    <li class="list-group-item"><a href="{{route('avg_cat')}}">Вычислить среднюю стоимость товаров определённой категории.</a></li>
+    <li class="list-group-item"><a href="{{route('expensive')}}">Найти самый дорогой товар.</a></li>
+    <li class="list-group-item"><a href="{{route('order_courier')}}">Найти количество выполненных доставок определенным курьером за определенный месяц.</a></li>
+
     </ul>
 
     <script>
